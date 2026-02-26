@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --shell-bg: #0a0f13;
+  --panel-bg: rgba(14, 20, 27, 0.82);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --ink: #e7edf2;
+  --muted: #a8b7c3;
+  --accent: #ffb340;
+  --alert: #ff6b35;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.7), transparent 36%),
+    radial-gradient(circle at 84% 18%, rgba(255, 196, 245, 0.4), transparent 34%),
+    radial-gradient(circle at 56% 10%, rgba(173, 227, 255, 0.45), transparent 40%),
+    linear-gradient(180deg, #a5e8ff 0%, #b5dbff 28%, #cab7ff 65%, #e6acd8 100%);
+  font-family:
+    ui-rounded,
+    "Trebuchet MS",
+    "Avenir Next",
+    "Segoe UI",
+    sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.retro_bitmap_font {
+  font-family:
+    "MS Sans Serif",
+    Tahoma,
+    Geneva,
+    Verdana,
+    sans-serif;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeSpeed;
+}
+
+@layer components {
+  .panel_shell {
+    @apply rounded-2xl border border-white/10 bg-white/5 shadow-panel backdrop-blur-sm;
+  }
+
+  .vault_frame {
+    @apply panel_shell relative overflow-hidden;
+    background:
+      linear-gradient(180deg, rgba(255, 179, 64, 0.08), transparent 42%),
+      rgba(14, 20, 27, 0.84);
+  }
+
+  .scanline_overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.02) 0px,
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    opacity: 0.55;
+  }
+}
