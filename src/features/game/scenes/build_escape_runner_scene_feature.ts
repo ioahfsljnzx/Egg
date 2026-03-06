@@ -95,6 +95,10 @@ export class EscapeRunnerScene extends Phaser.Scene {
   private lastResizeAtMs = 0;
   private pointerJumpQueued = false;
   private pointerRestartQueued = false;
+
+  // platformer helper: track if jump button is currently held
+  private jumpButtonHeld = false;
+
   private pendingButterShieldOnRestart = false;
 
   private isRoundActive = false;
@@ -195,6 +199,12 @@ export class EscapeRunnerScene extends Phaser.Scene {
     const keyboardJumpPressed =
       (this.cursors?.up !== undefined && Phaser.Input.Keyboard.JustDown(this.cursors.up)) ||
       (this.spaceKey !== undefined && Phaser.Input.Keyboard.JustDown(this.spaceKey));
+
+    // capture whether jump is being held for variable-height jumps / quicker gravity
+    const jumpHoldDown =
+      (this.cursors?.up !== undefined && this.cursors.up.isDown) ||
+      (this.spaceKey !== undefined && this.spaceKey.isDown);
+    this.jumpButtonHeld = jumpHoldDown;
     const restartPressed =
       (this.restartKey !== undefined && Phaser.Input.Keyboard.JustDown(this.restartKey)) ||
       false;
@@ -238,6 +248,7 @@ export class EscapeRunnerScene extends Phaser.Scene {
     }
 
     this.handleJumpInputFeature(wantsJump, eggBody);
+    // after processing inputs we can apply modified gravity for better platformer feel
     if (kazooPressed) {
       this.tryKazooSoundwaveFeature();
     }
@@ -664,6 +675,15 @@ export class EscapeRunnerScene extends Phaser.Scene {
   ): void {
     let gravityOffsetY = this.isGlitchActive ? -420 : 0;
 
+    // platformer-style gravity tweaks: faster falling and short hops if jump released early
+    if (eggBody.velocity.y > 0) {
+      // falling: increase gravity to drop quicker
+      gravityOffsetY += 560; // base fall gravity boost
+    } else if (eggBody.velocity.y < 0 && !this.jumpButtonHeld) {
+      // rising but jump released: apply a modest bump for shorter jump
+      gravityOffsetY += 320;
+    }
+
     if (this.hasRidiculousRewardFeature("sprinkle_rain_reward")) {
       gravityOffsetY -= 230;
 
@@ -874,7 +894,8 @@ export class EscapeRunnerScene extends Phaser.Scene {
     }
 
     const platformShoesBoost = hasPlatformShoesReward ? 28 : 0;
-    const jumpVelocity = (this.isGlitchActive ? -385 : -455) - platformShoesBoost;
+    // stronger initial impulse to feel snappier
+    const jumpVelocity = (this.isGlitchActive ? -420 : -500) - platformShoesBoost;
     this.eggSprite?.setVelocityY(jumpVelocity);
     this.spawnBurstFeature(this.eggSprite?.x ?? 0, groundY - 10, {
       count: 6,
